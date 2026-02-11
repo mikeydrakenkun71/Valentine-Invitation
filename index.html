@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine Surprise 💜</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#E6E0F8,#F3E8FF);
+  font-family:cursive;
+  color:#4B0082;
+  overflow:hidden;
+  text-align:center;
+}
+
+/* ---------- GENERAL ---------- */
+button{
+  background:#D8BFD8;
+  border:none;
+  padding:14px 24px;
+  border-radius:14px;
+  font-size:1.1em;
+  cursor:pointer;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);
+  transition:.3s;
+}
+button:hover{transform:scale(1.05);}
+
+h1{font-size:2.6em}
+
+/* ---------- SLIDE 1 ---------- */
+#slide1{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  transition:opacity 1s ease, transform 1s ease;
+}
+
+.card{
+  position:absolute;
+  background:#F8E6F8;
+  border:2px solid #D8BFD8;
+  border-radius:18px;
+  padding:25px;
+  font-size:1.3em;
+  opacity:0;
+  transform:scale(.5);
+  transition:.5s;
+}
+.card.show{opacity:1;transform:scale(1)}
+
+/* ---------- SLIDE 2 ---------- */
+#slide2{
+  position:absolute;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  width:90%;
+  max-width:420px;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .8s ease, transform .8s ease;
+  pointer-events:none;
+}
+
+#slide2.show{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+input{
+  padding:10px;
+  border-radius:10px;
+  border:2px solid #D8BFD8;
+  text-align:center;
+}
+
+.option{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  background:#F8E6F8;
+  padding:12px;
+  border-radius:12px;
+  border:2px dashed #D8BFD8;
+  cursor:pointer;
+}
+
+.option input{accent-color:purple;transform:scale(1.2)}
+
+.option input:checked + span{
+  animation:bounce .4s;
+}
+
+@keyframes bounce{
+  0%{transform:scale(1)}
+  30%{transform:scale(1.15)}
+  60%{transform:scale(.95)}
+  100%{transform:scale(1)}
+}
+
+#errorMsg{opacity:0;color:red}
+
+/* ---------- SLIDE 3 ---------- */
+#slide3{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  opacity:0;
+  transform:scale(.8);
+  transition:opacity 1s ease, transform 1s ease;
+  pointer-events:none;
+}
+
+#slide3.show{
+  opacity:1;
+  transform:scale(1);
+  pointer-events:auto;
+}
+
+/* ---------- ENVELOPE ---------- */
+.envelope{
+  width:90%;
+  max-width:420px;
+  background:#F8E6F8;
+  border:2px solid #D8BFD8;
+  border-radius:14px;
+  padding-top:90px;
+  position:relative;
+}
+
+.flap{
+  position:absolute;
+  top:-60px;
+  left:50%;
+  transform:translateX(-50%);
+  width:80px;
+  height:80px;
+  background:#FFC0CB;
+  border-radius:50%;
+  font-size:2em;
+  line-height:80px;
+  cursor:pointer;
+}
+
+.letter{
+  opacity:0;
+  padding:20px;
+  transition:1s;
+}
+
+.envelope.open .letter{opacity:1}
+
+.floating-heart{
+  position:absolute;
+  animation:float 4s linear forwards;
+}
+@keyframes float{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-400px)}
+}
+
+@media(max-width:600px){
+  h1{font-size:2em}
+  button{width:100%}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SLIDE 1 -->
+<div id="slide1">
+  <h1>💜 Valentine Surprise 💜</h1>
+  <button id="startBtn">Click me 💖</button>
+</div>
+
+<div class="card" id="c1">❌ Error 404 – Love Not Found</div>
+<div class="card" id="c2">⚠️ Heart overload detected 💘</div>
+<div class="card" id="c3">💾 Too many butterflies!</div>
+
+<!-- SLIDE 2 -->
+<div id="slide2">
+  <p>💌 Confirm our Valentine’s Date 💌</p>
+  <input id="date" placeholder="📅 Date">
+  <input id="time" placeholder="⏰ Time">
+
+  <p>📍 Around Quezon City (non-negotiable 😤)</p>
+
+  <label class="option">
+    <input type="radio" name="place" value="Samgyup + Coffee date">
+    <span>🥩 Samgyup + Coffee date</span>
+  </label>
+
+  <label class="option">
+    <input type="radio" name="place" value="Ramen + Coffee date">
+    <span>🍜 Ramen + Coffee date</span>
+  </label>
+
+  <label class="option">
+    <input type="radio" name="place" value="Apartment movie night">
+    <span>🏠 Food + coffee + movie 🎬</span>
+  </label>
+
+  <button onclick="goToSlide3()">Lock the Date 💘</button>
+  <div id="errorMsg">Fill everything first 😜</div>
+</div>
+
+<!-- SLIDE 3 -->
+<div id="slide3">
+  <div class="envelope">
+    <div class="flap" onclick="openLetter()">💜</div>
+    <div class="letter">
+      <p id="typewriter"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const startBtn=document.getElementById("startBtn");
+const slide1=document.getElementById("slide1");
+const slide2=document.getElementById("slide2");
+const slide3=document.getElementById("slide3");
+const errorMsg=document.getElementById("errorMsg");
+const typewriter=document.getElementById("typewriter");
+
+let chosenDate="",chosenTime="",chosenPlace="";
+let text="",i=0;
+
+startBtn.onclick=()=>{
+  const cards=[c1,c2,c3];
+  cards.forEach((c,i)=>{
+    setTimeout(()=>c.classList.add("show"),i*700);
+    setTimeout(()=>c.classList.remove("show"),2400+i*700);
+  });
+
+  setTimeout(()=>{
+    slide1.style.opacity=0;
+    slide1.style.transform="translateY(-40px)";
+  },3000);
+
+  setTimeout(()=>{
+    slide1.style.display="none";
+    slide2.classList.add("show");
+  },3800);
+};
+
+function goToSlide3(){
+  const date=document.getElementById("date").value.trim();
+  const time=document.getElementById("time").value.trim();
+  const place=document.querySelector("input[name='place']:checked");
+  if(!date||!time||!place){errorMsg.style.opacity=1;return}
+
+  chosenDate=date; chosenTime=time; chosenPlace=place.value;
+
+  slide2.classList.remove("show");
+  setTimeout(()=>slide3.classList.add("show"),600);
+}
+
+function openLetter(){
+  document.querySelector(".envelope").classList.add("open");
+  text=`Hi babi 💜
+
+We’re officially going on a Valentine’s date on ${chosenDate} at ${chosenTime}.
+And yes… ${chosenPlace}. 😌
+
+Hi babi 💜
+
+I just want you to know how grateful I am to have you in my life.
+I never thought there would still be someone who could truly accept me —
+my past, my flaws, and everything that comes with who I am.
+But you set all of that aside because you genuinely wanted to know me,
+the real me.
+
+Honestly, I didn’t even think I would fall in love again.
+I was scared.
+I felt like I was too risky, too hard to handle.
+But with you, everything feels different.
+I can’t even explain it —
+things just feel easier, lighter, and safer.
+
+Thank you for understanding me,
+for loving me,
+and for taking care of me.
+Every little thing you do means so much to me,
+and it makes me genuinely happy.
+I promise I don’t take any of this for granted. 💖
+
+Sincerely yours,
+KID💜`;
+  type();
+  hearts();
+}
+
+function type(){
+  if(i<text.length){
+    typewriter.innerHTML+=text.charAt(i).replace("\n","<br>");
+    i++;
+    setTimeout(type,25);
+  }
+}
+
+function hearts(){
+  for(let i=0;i<25;i++){
+    const h=document.createElement("div");
+    h.className="floating-heart";
+    h.innerText="💖";
+    h.style.left=Math.random()*innerWidth+"px";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),4000);
+  }
+}
+</script>
+
+</body>
+</html>
